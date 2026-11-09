@@ -95,6 +95,24 @@ class AuthenticationTest extends TestCase
             ->assertJsonPath('data.data.0.id', $admin->id);
     }
 
+    public function test_legacy_is_admin_accounts_can_login_and_access_admin_routes(): void
+    {
+        $admin = User::factory()->create([
+            'is_admin' => true,
+            'password' => 'secret-password',
+        ]);
+
+        $response = $this->postJson('/api/admin/login', [
+            'email' => $admin->email,
+            'password' => 'secret-password',
+        ])->assertOk()
+            ->assertJsonPath('data.id', $admin->id);
+
+        $this->withToken($response->json('token'))
+            ->getJson('/api/admin/users')
+            ->assertOk();
+    }
+
     public function test_users_can_only_access_their_own_user_record_unless_admin(): void
     {
         $owner = User::factory()->create();

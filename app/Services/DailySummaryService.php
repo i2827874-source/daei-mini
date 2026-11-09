@@ -71,7 +71,7 @@ class DailySummaryService
 
         $summary = $this->generate($userId, $date);
 
-        return DailyReport::query()->updateOrCreate(
+        $report = DailyReport::query()->firstOrCreate(
             [
                 'user_id' => $userId,
                 'report_date' => $summary['report_date'],
@@ -80,6 +80,14 @@ class DailySummaryService
                 'finalized_at' => now(config('app.timezone')),
             ])
         );
+
+        if (! $report->wasRecentlyCreated) {
+            throw ValidationException::withMessages([
+                'date' => 'Daily summaries cannot be edited after they have been finalized.',
+            ]);
+        }
+
+        return $report;
     }
 
     private function emptyCounts(): array

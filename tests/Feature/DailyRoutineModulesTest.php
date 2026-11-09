@@ -37,7 +37,22 @@ class DailyRoutineModulesTest extends TestCase
         $id=$response->json('data.id');
         $this->getJson('/api/daily-reports')->assertOk()->assertJsonPath('data.0.reflection','Keep a steady pace.');
         $this->getJson('/api/daily-reports/'.$id)->assertOk()->assertJsonPath('data.id',$id);
+        $this->postJson('/api/daily-reports', array_merge($data, [
+            'reflection' => 'Changed after submission.',
+        ]))->assertUnprocessable();
+        $this->assertDatabaseHas('daily_reports', [
+            'id' => $id,
+            'reflection' => 'Keep a steady pace.',
+        ]);
         $this->postJson('/api/daily-reports',['rating'=>8])->assertUnprocessable();
+    }
+
+    public function test_finalized_daily_summary_cannot_be_submitted_again(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->postJson('/api/daily-summary')->assertOk();
+        $this->putJson('/api/daily-summary')->assertUnprocessable();
     }
 
     public function test_admin_can_filter_reports_view_details_send_feedback_and_change_status(): void

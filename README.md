@@ -62,3 +62,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 The API uses Laravel Sanctum bearer tokens. `POST /api/register` creates a regular user; submitted role values are ignored. Sign in with `POST /api/login` or use `POST /api/admin/login` for an admin account. Both login endpoints return a bearer token that expires after seven days. Send it as `Authorization: Bearer <token>` on protected requests. `POST /api/logout` revokes the token used by that request.
 
 `GET /api/user` returns the authenticated user's profile. `GET /api/users/{id}` is limited to that user or an admin. Admin-only endpoints are grouped under `/api/admin`; for example, `GET /api/admin/users` lists users. Grant admin access to an existing account from a trusted terminal with `php artisan app:grant-admin user@example.com` and confirm the prompt. Public registration cannot create admins.
+
+## Daily reports
+
+Daily reports can be submitted only for the current date. Once a report has been created for that date, further report or daily-summary submissions for the same user and date are rejected rather than overwriting the finalized report.
